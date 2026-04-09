@@ -1,0 +1,969 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "56e2ac6b-6f4e-9971-4709-99e566f85df2",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "layer": {
+              "value": "Silver",
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "workspace_id": {
+              "value": {
+                "value": "@pipeline().DataFactory",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_id": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_run_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "STARTED",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_insert",
+        "dependsOn": [
+          {
+            "activity": "setvar_hasError",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_audit_log_insert",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_audit_log_insert').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update_nb_rules_validation_fail",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_rules_validation",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "hasError",
+          "value": "false"
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "setvar_hasError",
+        "dependsOn": []
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "cf7fbb92-40d4-aa19-495d-7fed165dcde3",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "interface_id": {
+              "value": {
+                "value": "@pipeline().parameters.interface_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_rules_validation",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "76ff0baf-0177-b0b4-432c-8b2d2e4bc4ac",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "interface_id": {
+              "value": {
+                "value": "@pipeline().parameters.interface_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_casting_validation",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_rules_validation",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_rules_validation",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_rules_validation').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_rules_validation').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_rules_validation').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_rules_validation').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log rules validation",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_rules_validation",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_casting_validation",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_casting_validation').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_casting_validation').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_casting_validation').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_casting_validation').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log casting validation",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_casting_validation",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update_nb_cast_validation_fail",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_casting_validation",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "database": "LHDEVBRONZE",
+          "scripts": [
+            {
+              "text": {
+                "value": "SELECT\r\nINTERFACE_ID,\r\nNOTEBOOK_NAME\r\nFROM\r\n control.cfg_silver\r\n WHERE  INTERFACE_ID = @interface_id AND ISACTIVE='Y'\r\n ORDER BY EXECUTION_ORDER ASC",
+                "type": "Expression"
+              },
+              "type": "Query",
+              "parameters": [
+                {
+                  "name": "interface_id",
+                  "type": "String",
+                  "value": {
+                    "value": "@pipeline().parameters.interface_id",
+                    "type": "Expression"
+                  },
+                  "direction": "Input"
+                }
+              ]
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "externalReferences": {
+          "connection": "8e7fdd65-3500-4730-bbbb-ab103c2b36eb"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "script_cfg_silver_table",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_casting_validation",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('script_cfg_silver_table').output.resultSets[0].rows",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(variables('hasError'), false)",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "bd23ec3e-8939-941b-44f6-566025e3dd90",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "notebook_name": {
+                          "value": {
+                            "value": "@item().NOTEBOOK_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_gen_scd_merge",
+                    "dependsOn": []
+                  },
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_name": {
+                          "value": {
+                            "value": "@pipeline().PipelineName",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_id": {
+                          "value": {
+                            "value": "@pipeline().Pipeline",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_name": {
+                          "value": "ForEach_SilverTableNotebook",
+                          "type": "string"
+                        },
+                        "pipeline_run_id": {
+                          "value": {
+                            "value": "@pipeline().RunId",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "error_message": {
+                          "value": {
+                            "value": "@split(string(activity('nb_gen_scd_merge').Error.Message), '\\n') [0]",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activityy_type": {
+                          "value": {
+                            "value": "@activity('nb_gen_scd_merge').ActivityType",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_start_time": {
+                          "value": {
+                            "value": "@activity('nb_gen_scd_merge').ExecutionStartTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_end_time": {
+                          "value": {
+                            "value": "@activity('nb_gen_scd_merge').ExecutionEndTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_gen_error_log_foreach_copy1",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_gen_scd_merge",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SetVariable",
+                    "typeProperties": {
+                      "variableName": "hasError",
+                      "value": "true"
+                    },
+                    "policy": {
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "setvar_hasError_true",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_gen_error_log_foreach_copy1",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "ifFalseActivities": []
+              },
+              "name": "err_chk_scd_merge",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach_silver_table",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_silver_table",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "script_cfg_silver_table",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('script_cfg_silver_table').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('script_cfg_silver_table').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('script_cfg_silver_table').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('script_cfg_silver_table').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log_scrpt",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_silver_table",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update scrpt fail",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_silver_table",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@equals(variables('hasError'), true)",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "FAIL",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update_foreach_fail",
+              "dependsOn": []
+            },
+            {
+              "type": "Fail",
+              "typeProperties": {
+                "message": "ITERATION_FAILED",
+                "errorCode": "Pipeline failed due to error in For Each"
+              },
+              "name": "ITERATION_FAILED",
+              "dependsOn": [
+                {
+                  "activity": "nb_gen_audit_log_update_foreach_fail",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ],
+          "ifFalseActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "PASS",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update_foreach_pass",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "job_completion_status",
+        "dependsOn": [
+          {
+            "activity": "ForEach_silver_table",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "interface_id": {
+        "type": "string"
+      },
+      "batch_id": {
+        "type": "string"
+      },
+      "parent_pipeline_id": {
+        "type": "string"
+      },
+      "parent_pipeline_name": {
+        "type": "string"
+      },
+      "parent_pipeline_run_id": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "hasError": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -1,0 +1,816 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "56e2ac6b-6f4e-9971-4709-99e566f85df2",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_insert",
+        "dependsOn": []
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_audit_log_insert",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_audit_log_insert').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update fail",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "database": "LHDEVBRONZE",
+          "scripts": [
+            {
+              "text": {
+                "value": "SELECT\r\nbrnzstg.BRONZE_STAGING_ENTITY_ID,\r\nbrnzstg.INTERFACE_ID,\r\nbrnzstg.SOURCE_SYSTEM,\r\nbrnzstg.SOURCE_TYPE,\r\nbrnzstg.SOURCE_PATH,\r\nbrnzstg.PROCESSED_PATH,\r\nbrnzstg.QUARANTINE_PATH,\r\nbrnzstg.SOURCE_OBJECT_NAME,\r\nbrnzstg.SOURCE_FILE_PATTERN,\r\nbrnzstg.SOURCE_FORMAT,\r\nbrnzstg.SOURCE_FILE_DELIMITER,\r\nbrnzstg.SOURCE_FILE_HEADER,\r\nbrnzstg.SOURCE_FILE_COMPRESSION,\r\nbrnzstg.FILE_SIZE_MIN_BYTES,\r\nbrnzstg.TARGET_FORMAT,\r\nbrnzstg.TARGET_SCHEMA,\r\nbrnzstg.TARGET_TABLE_NAME,\r\nbrnzstg.TARGET_WRITE_MODE,\r\nbrnzstg.HISTORY_LOAD_INDICATOR,    \r\nbrnzstg.HISTORY_TARGET_FORMAT,     \r\nbrnzstg.HISTORY_TARGET_SCHEMA,       \r\nbrnzstg.HISTORY_TARGET_TABLE_NAME,\r\nbrnzstg.HISTORY_TARGET_WRITE_MODE, \r\nbrnzstg.ISACTIVE\r\nFROM control.cfg_bronze_staging brnzstg\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
+                "type": "Expression"
+              },
+              "type": "Query",
+              "parameters": [
+                {
+                  "name": "interface_id",
+                  "type": "String",
+                  "value": {
+                    "value": "@pipeline().parameters.interface_id",
+                    "type": "Expression"
+                  },
+                  "direction": "Input"
+                }
+              ]
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "externalReferences": {
+          "connection": "8e7fdd65-3500-4730-bbbb-ab103c2b36eb"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "script_cfg_bronze_staging_table",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@activity('script_cfg_bronze_staging_table').output.resultSets[0].rows",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "3cdf08c3-a68d-a1aa-47e3-465b4b5d2453",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "source_format": {
+                    "value": {
+                      "value": "@item().SOURCE_FORMAT",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_path": {
+                    "value": {
+                      "value": "@item.SOURCE_PATH",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_file_header": {
+                    "value": {
+                      "value": "@item.SOURCE_FILE_HEADER",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_object_name": {
+                    "value": {
+                      "value": "@item.SOURCE_OBJECT_NAME",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_format": {
+                    "value": {
+                      "value": "@item.TARGET_FORMAT",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_write_mode": {
+                    "value": {
+                      "value": "@item.TARGET_WRITE_MODE",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_schema": {
+                    "value": {
+                      "value": "@item.TARGET_SCHEMA",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_table_name": {
+                    "value": {
+                      "value": "@item.TARGET_TABLE_NAME",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "delimiter": {
+                    "value": {
+                      "value": "@item.SOURCE_FILE_DELIMITER",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "batch_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.batch_id",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "processed_path": {
+                    "value": {
+                      "value": "@item().PROCESSED_PATH",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "quarantine_path": {
+                    "value": {
+                      "value": "@item().QUARANTINE_PATH",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "history_load_indicator": {
+                    "value": {
+                      "value": "@item().HISTORY_LOAD_INDICATOR",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "history_target_format": {
+                    "value": {
+                      "value": "@item().HISTORY_TARGET_FORMAT",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "istory_target_schema": {
+                    "value": {
+                      "value": "@item().HISTORY_TARGET_SCHEMA",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "history_target_table_name": {
+                    "value": {
+                      "value": "@item().HISTORY_TARGET_TABLE_NAME",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "history_target_write_mode": {
+                    "value": {
+                      "value": "@item().HISTORY_TARGET_WRITE_MODE",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_system": {
+                    "value": {
+                      "value": "@item().SOURCE_SYSTEM",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "file_size_min_threshold": {
+                    "value": {
+                      "value": "@item().FILE_SIZE_MIN_BYTES",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_run_brz_load_entity",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach_bronze_staging",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_bronze_staging_table",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update_script_fail",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_bronze_staging_table",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "Script_control_table_bronze_staging",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('script_cfg_bronze_staging_table').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('script_cfg_bronze_staging_table').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('script_cfg_bronze_staging_table').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('script_cfg_bronze_staging_table').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log_script",
+        "dependsOn": [
+          {
+            "activity": "script_cfg_bronze_staging_table",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "d989b10f-d2f4-85cd-490b-c2666c9009ca",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "interface_id": {
+              "value": {
+                "value": "@pipeline().parameters.interface_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_brz_layer_deletion",
+        "dependsOn": [
+          {
+            "activity": "ForEach_bronze_staging",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update foreach fail",
+        "dependsOn": [
+          {
+            "activity": "ForEach_bronze_staging",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "ForEach_bronze_staging",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('ForEach_bronze_staging').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('ForEach_bronze_staging').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('ForEach_bronze_staging').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('ForEach_bronze_staging').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log_foreach",
+        "dependsOn": [
+          {
+            "activity": "ForEach_bronze_staging",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "PASS",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_update pass",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_brz_layer_deletion",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "FAIL",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_brz_layer_deletion_fail",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_brz_layer_deletion",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_brz_layer_deletion",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_brz_layer_deletion').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_brz_layer_deletion').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_brz_layer_deletion').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_brz_layer_deletion').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log_brz_layer_deletion",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_brz_layer_deletion",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "interface_id": {
+        "type": "string"
+      },
+      "batch_id": {
+        "type": "string"
+      },
+      "parent_pipeline_id": {
+        "type": "string"
+      },
+      "parent_pipeline_name": {
+        "type": "string"
+      },
+      "parent_pipeline_run_id": {
+        "type": "string"
+      }
+    }
+  }
+}

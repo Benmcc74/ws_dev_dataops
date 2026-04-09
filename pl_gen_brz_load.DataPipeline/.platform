@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_gen_brz_load"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f2e2e197-f3f3-b8b4-481a-f8e20687178b"
+  }
+}

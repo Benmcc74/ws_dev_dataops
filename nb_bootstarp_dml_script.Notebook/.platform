@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_bootstarp_dml_script"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "efcadbac-c38c-8d6b-4b78-bd813d329a7d"
+  }
+}

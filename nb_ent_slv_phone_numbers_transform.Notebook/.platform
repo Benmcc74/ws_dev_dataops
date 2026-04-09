@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_ent_slv_phone_numbers_transform"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "fff101ad-d912-997d-4f00-0f08183f16ee"
+  }
+}
