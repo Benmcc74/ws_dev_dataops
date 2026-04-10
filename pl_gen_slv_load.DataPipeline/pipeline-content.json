@@ -535,7 +535,7 @@
           "scriptBlockExecutionTimeout": "02:00:00"
         },
         "externalReferences": {
-          "connection": "de6f2001-255b-47ba-9da2-7695038ee210"
+          "connection": "1712cad1-5f06-4a3e-9e25-9ee206a30041"
         },
         "policy": {
           "timeout": "0.12:00:00",
