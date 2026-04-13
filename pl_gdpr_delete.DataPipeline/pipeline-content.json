@@ -1,0 +1,1252 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "hasError",
+          "value": "false"
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "var_hasError",
+        "dependsOn": []
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "56e2ac6b-6f4e-9971-4709-99e566f85df2",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "layer": {
+              "value": "GDPR Hard Delete",
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "workspace_id": {
+              "value": {
+                "value": "@pipeline().DataFactory",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_id": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_run_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "parent_pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_status": {
+              "value": "STARTED",
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_audit_log_insert",
+        "dependsOn": [
+          {
+            "activity": "var_hasError",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "database": "LHDEVBRONZE",
+          "scripts": [
+            {
+              "text": {
+                "value": "SELECT \r\nINTERFACE_ID,\r\nTABLE_NAME,\r\nDELETE_KEY_COLUMN,\r\nDELETE_SRC_TABLE,\r\nDELETE_SRC_KEY_COLUMN,\r\nDELETE_SRC_COLUMN,\r\nDELETE_SRC_COLUMN_VALUE\r\nFROM \r\ncontrol.cfg_silver\r\nWHERE INTERFACE_ID = @interface_id AND ISACTIVE = 'Y'\r\nORDER BY EXECUTION_ORDER ASC",
+                "type": "Expression"
+              },
+              "type": "Query",
+              "parameters": [
+                {
+                  "name": "interface_id",
+                  "type": "String",
+                  "value": {
+                    "value": "@pipeline().parameters.interface_id",
+                    "type": "Expression"
+                  },
+                  "direction": "Input"
+                },
+                {
+                  "name": "batch_id",
+                  "type": "String",
+                  "value": {
+                    "value": "@pipeline().parameters.batch_id",
+                    "type": "Expression"
+                  },
+                  "direction": "Input"
+                }
+              ]
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "externalReferences": {
+          "connection": "de6f2001-255b-47ba-9da2-7695038ee210"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "scrpt_cfg_silver_table",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().parameters.batch_id",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().parameters.parent_pipeline_name",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "pipeline_id": {
+              "value": {
+                "value": "@pipeline().Pipeline",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_name": {
+              "value": "nb_gen_audit_log_insert",
+              "type": "string"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@string(activity('nb_gen_audit_log_insert').Error.Message)",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_type": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ActivityType",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_start_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionStartTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "activity_end_time": {
+              "value": {
+                "value": "@activity('nb_gen_audit_log_insert').ExecutionEndTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gen_error_log",
+        "dependsOn": [
+          {
+            "activity": "nb_gen_audit_log_insert",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@activity('scrpt_cfg_silver_table').output.resultSets[0].rows",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(variables('hasError'), true)",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_name": {
+                          "value": {
+                            "value": "@pipeline().parameters.parent_pipeline_name",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_id": {
+                          "value": {
+                            "value": "@pipeline().Pipeline",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_name": {
+                          "value": "Audit_Table_Insertion",
+                          "type": "string"
+                        },
+                        "pipeline_run_id": {
+                          "value": {
+                            "value": "@pipeline().RunId",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "error_message": {
+                          "value": {
+                            "value": "@string(activity('nb_ent_customer_data_delete').Error.Message)",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_type": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete').ActivityType",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_start_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete').ExecutionStartTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_end_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete').ExecutionEndTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_gen_error_log_scrpt",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_ent_customer_data_delete",
+                        "dependencyConditions": [
+                          "Failed"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SetVariable",
+                    "typeProperties": {
+                      "variableName": "hasError",
+                      "value": "true"
+                    },
+                    "policy": {
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "setvar_hasError_true",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_gen_error_log_scrpt",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "99d8056e-497d-adcb-49be-5063f110c944",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "target_table": {
+                          "value": {
+                            "value": "@item().TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "target_id_col": {
+                          "value": {
+                            "value": "@item().DELETE_KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_table": {
+                          "value": {
+                            "value": "@item().DELETE_SRC_TABLE",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_id_col": {
+                          "value": {
+                            "value": "@item().DELETE_SRC_KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute": {
+                          "value": {
+                            "value": "@item().DELETE_SRC_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute_value": {
+                          "value": {
+                            "value": "@item().DELETE_SRC_KEY_COLUMN_VALUE",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_ent_customer_data_delete",
+                    "dependsOn": []
+                  }
+                ],
+                "ifFalseActivities": []
+              },
+              "name": "IfCondition_ent_cust_data_delete",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach_ent_cust_data_delete",
+        "dependsOn": [
+          {
+            "activity": "scrpt_cfg_silver_table",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@equals(variables('hasError'), true)",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "FAIL",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update scrpt fail",
+              "dependsOn": []
+            },
+            {
+              "type": "Fail",
+              "typeProperties": {
+                "message": "ITERATION_FAILED",
+                "errorCode": "Pipeline failed due to error in For Each"
+              },
+              "name": "Fail3",
+              "dependsOn": [
+                {
+                  "activity": "nb_gen_audit_log_update scrpt fail",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ],
+          "ifFalseActivities": [
+            {
+              "type": "Script",
+              "typeProperties": {
+                "database": "LHDEVBRONZE",
+                "scripts": [
+                  {
+                    "text": {
+                      "value": "SELECT \r\nINTERFACE_ID,\r\nCONCAT(HISTORY_TARGET_SCHEMA, '.', HISTORY_TARGET_TABLE_NAME) as TABLE_NAME,\r\nCONCAT(TARGET_LAKEHOUSE, '.', TARGET_SCHEMA, '.', TARGET_TABLE_NAME) as SOURCE_TABLE_NAME,\r\nKEY_COLUMN,\r\nDELETE_COLUMN,\r\nDELETE_COLUMN_VALUE\r\nFROM\r\n control.cfg_bronze_staging\r\n WHERE INTERFACE_ID = @interface_id AND ISACTIVE='Y' AND HISTORY_LOAD_INDICATOR = 'Y'",
+                      "type": "Expression"
+                    },
+                    "type": "Query",
+                    "parameters": [
+                      {
+                        "name": "interface_id",
+                        "type": "String",
+                        "value": {
+                          "value": "@pipeline().parameters.interface_id",
+                          "type": "Expression"
+                        },
+                        "direction": "Input"
+                      },
+                      {
+                        "name": "batch_id",
+                        "type": "String",
+                        "value": {
+                          "value": "@pipeline().parameters.batch_id",
+                          "type": "Expression"
+                        },
+                        "direction": "Input"
+                      }
+                    ]
+                  }
+                ],
+                "scriptBlockExecutionTimeout": "02:00:00"
+              },
+              "externalReferences": {
+                "connection": "de6f2001-255b-47ba-9da2-7695038ee210"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "scrpt_cfg_history_table",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "IfCondition_job_completion_check",
+        "dependsOn": [
+          {
+            "activity": "ForEach_ent_cust_data_delete",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@if(greater(length(activity('scrpt_cfg_history_table').output.resultSets),0),activity('scrpt_cfg_history_table').output.resultSets[0].rows,json('[]'))",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(variables('hasError'), false)",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_name": {
+                          "value": {
+                            "value": "@pipeline().parameters.parent_pipeline_name",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_id": {
+                          "value": {
+                            "value": "@pipeline().Pipeline",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_name": {
+                          "value": "If_condition_hist",
+                          "type": "string"
+                        },
+                        "pipeline_run_id": {
+                          "value": {
+                            "value": "@pipeline().RunId",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "error_message": {
+                          "value": {
+                            "value": "@string(activity('nb_ent_customer_data_delete_brnz_hist').Error.Message)",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_type": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_hist').ActivityType",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_start_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_hist').ExecutionStartTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_end_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_hist').ExecutionEndTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_gen_error_log_if_condition_hist",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_ent_customer_data_delete_brnz_hist",
+                        "dependencyConditions": [
+                          "Failed"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SetVariable",
+                    "typeProperties": {
+                      "variableName": "hasError",
+                      "value": "true"
+                    },
+                    "policy": {
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "var_ErrorTrue",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_gen_error_log_if_condition_hist",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "99d8056e-497d-adcb-49be-5063f110c944",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "target_table": {
+                          "value": {
+                            "value": "@item().TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "target_id_col": {
+                          "value": {
+                            "value": "@item().KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_table": {
+                          "value": {
+                            "value": "@item().SOURCE_TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute": {
+                          "value": {
+                            "value": "@item().DELETE_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute_value": {
+                          "value": {
+                            "value": "@item().DELETE_COLUMN_VALUE",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_id_col": {
+                          "value": {
+                            "value": "@item().KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_ent_customer_data_delete_brnz_hist",
+                    "dependsOn": []
+                  }
+                ],
+                "ifFalseActivities": []
+              },
+              "name": "cust_brnz_hist_dlt_err_chk",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach_Hist_Staging_Delete",
+        "dependsOn": [
+          {
+            "activity": "IfCondition_job_completion_check",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@equals(variables('hasError'), true)",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "FAIL",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update_ForEach_fail",
+              "dependsOn": []
+            },
+            {
+              "type": "Fail",
+              "typeProperties": {
+                "message": "ITERATION_FAILED",
+                "errorCode": "Pipeline failed due to error in For Each"
+              },
+              "name": "Fail2",
+              "dependsOn": [
+                {
+                  "activity": "nb_gen_audit_log_update_ForEach_fail",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ],
+          "ifFalseActivities": [
+            {
+              "type": "Script",
+              "typeProperties": {
+                "database": "LHDEVBRONZE",
+                "scripts": [
+                  {
+                    "text": {
+                      "value": "SELECT \r\nINTERFACE_ID,\r\nCONCAT(TARGET_LAKEHOUSE, '.', TARGET_SCHEMA, '.', TARGET_TABLE_NAME) as TABLE_NAME,\r\nKEY_COLUMN,\r\nDELETE_COLUMN,\r\nDELETE_COLUMN_VALUE,\r\nRULE_VALIDATION_RESULTS_TABLE_NAME,\r\nRECORD_IDENTIFIER_COLUMN,\r\nRECORD_IDENTIFIER_VALUE_COLUMN,\r\nVALIDATION_SOURCE_COLUMN\r\nFROM\r\n control.cfg_bronze_staging\r\n WHERE INTERFACE_ID = @interface_id AND ISACTIVE='Y'",
+                      "type": "Expression"
+                    },
+                    "type": "Query",
+                    "parameters": [
+                      {
+                        "name": "interface_id",
+                        "type": "String",
+                        "value": {
+                          "value": "@pipeline().parameters.interface_id",
+                          "type": "Expression"
+                        },
+                        "direction": "Input"
+                      },
+                      {
+                        "name": "batch_id",
+                        "type": "String",
+                        "value": {
+                          "value": "@pipeline().parameters.batch_id",
+                          "type": "Expression"
+                        },
+                        "direction": "Input"
+                      }
+                    ]
+                  }
+                ],
+                "scriptBlockExecutionTimeout": "02:00:00"
+              },
+              "externalReferences": {
+                "connection": "de6f2001-255b-47ba-9da2-7695038ee210"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "scrpt_cfg_bronze_snapshot_table",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "IfCondition_delete_hist_completion_check",
+        "dependsOn": [
+          {
+            "activity": "ForEach_Hist_Staging_Delete",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@activity('scrpt_cfg_bronze_snapshot_table').output.resultSets[0].rows",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(variables('hasError'), false)",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_name": {
+                          "value": {
+                            "value": "@pipeline().parameters.parent_pipeline_name",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "pipeline_id": {
+                          "value": {
+                            "value": "@pipeline().Pipeline",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_name": {
+                          "value": "ForEach_Staging_Delete",
+                          "type": "string"
+                        },
+                        "pipeline_run_id": {
+                          "value": {
+                            "value": "@pipeline().RunId",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "error_message": {
+                          "value": {
+                            "value": "@string(activity('nb_ent_customer_data_delete_brnz_snap').Error.Message)",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_type": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_snap').ActivityType",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_start_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_snap').ExecutionStartTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "activity_end_time": {
+                          "value": {
+                            "value": "@activity('nb_ent_customer_data_delete_brnz_snap').ExecutionEndTime",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_gen_error_log_delete_brnz",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_ent_customer_data_delete_brnz_snap",
+                        "dependencyConditions": [
+                          "Failed"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SetVariable",
+                    "typeProperties": {
+                      "variableName": "hasError",
+                      "value": "true"
+                    },
+                    "policy": {
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "Set variable 1",
+                    "dependsOn": [
+                      {
+                        "activity": "nb_gen_error_log_delete_brnz",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "TridentNotebook",
+                    "typeProperties": {
+                      "notebookId": "99d8056e-497d-adcb-49be-5063f110c944",
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "parameters": {
+                        "target_table": {
+                          "value": {
+                            "value": "@item().TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "target_id_col": {
+                          "value": {
+                            "value": "@item().KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "batch_id": {
+                          "value": {
+                            "value": "@pipeline().parameters.batch_id",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_table": {
+                          "value": {
+                            "value": "@item().TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute": {
+                          "value": {
+                            "value": "@item().DELETE_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "delete_attribute_value": {
+                          "value": {
+                            "value": "@item().DELETE_COLUMN_VALUE",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "source_id_col": {
+                          "value": {
+                            "value": "@item().KEY_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "rule_validation_results_table_name": {
+                          "value": {
+                            "value": "@item().RULE_VALIDATION_RESULTS_TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "schema_validation_results_table_name": {
+                          "value": {
+                            "value": "@item().SCHEMA_VALIDATION_RESULTS_TABLE_NAME",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "record_identifier_column": {
+                          "value": {
+                            "value": "@item().RECORD_IDENTIFIER_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "record_identifier_value_column": {
+                          "value": {
+                            "value": "@item().RECORD_IDENTIFIER_VALUE_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        },
+                        "validation_source_name_column": {
+                          "value": {
+                            "value": "@item().VALIDATION_SOURCE_COLUMN",
+                            "type": "Expression"
+                          },
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 3,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "nb_ent_customer_data_delete_brnz_snap",
+                    "dependsOn": []
+                  }
+                ],
+                "ifFalseActivities": []
+              },
+              "name": "brnz_cust_data_delete_error_check",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach_Staging_Delete",
+        "dependsOn": [
+          {
+            "activity": "IfCondition_delete_hist_completion_check",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@equals(variables('hasError'), true)",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "FAIL",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update_scrpt_staging_fail",
+              "dependsOn": []
+            },
+            {
+              "type": "Fail",
+              "typeProperties": {
+                "message": "ITERATION_FAILED",
+                "errorCode": "Pipeline failed due to error in For Each"
+              },
+              "name": "Fail1",
+              "dependsOn": [
+                {
+                  "activity": "nb_gen_audit_log_update_scrpt_staging_fail",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ],
+          "ifFalseActivities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_status": {
+                    "value": "PASS",
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 3,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_gen_audit_log_update_pass",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "IfCondition_job_compltion_check",
+        "dependsOn": [
+          {
+            "activity": "ForEach_Staging_Delete",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "interface_id": {
+        "type": "string"
+      },
+      "batch_id": {
+        "type": "string"
+      },
+      "parent_pipeline_name": {
+        "type": "string"
+      },
+      "parent_pipeline_run_id": {
+        "type": "string"
+      },
+      "parent_pipeline_id": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "hasError": {
+        "type": "String"
+      }
+    }
+  }
+}
