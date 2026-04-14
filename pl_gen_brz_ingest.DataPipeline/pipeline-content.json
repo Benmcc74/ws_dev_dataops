@@ -87,49 +87,13 @@
         ]
       },
       {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "pipeline_run_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "pipeline_status": {
-              "value": "FAIL",
-              "type": "string"
-            }
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 3,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "nb_gen_audit_log_update fail",
-        "dependsOn": [
-          {
-            "activity": "nb_gen_audit_log_insert",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
         "type": "Script",
         "typeProperties": {
           "database": "LHDEVBRONZE",
           "scripts": [
             {
               "text": {
-                "value": "SELECT\r\nbrnzstg.BRONZE_STAGING_ENTITY_ID,\r\nbrnzstg.INTERFACE_ID,\r\nbrnzstg.SOURCE_SYSTEM,\r\nbrnzstg.SOURCE_TYPE,\r\nbrnzstg.SOURCE_PATH,\r\nbrnzstg.PROCESSED_PATH,\r\nbrnzstg.QUARANTINE_PATH,\r\nbrnzstg.SOURCE_OBJECT_NAME,\r\nbrnzstg.SOURCE_FILE_PATTERN,\r\nbrnzstg.SOURCE_FORMAT,\r\nbrnzstg.SOURCE_FILE_DELIMITER,\r\nbrnzstg.SOURCE_FILE_HEADER,\r\nbrnzstg.SOURCE_FILE_COMPRESSION,\r\nbrnzstg.FILE_SIZE_MIN_BYTES,\r\nbrnzstg.TARGET_FORMAT,\r\nbrnzstg.TARGET_SCHEMA,\r\nbrnzstg.TARGET_TABLE_NAME,\r\nbrnzstg.TARGET_WRITE_MODE,\r\nbrnzstg.HISTORY_LOAD_INDICATOR,    \r\nbrnzstg.HISTORY_TARGET_FORMAT,     \r\nbrnzstg.HISTORY_TARGET_SCHEMA,       \r\nbrnzstg.HISTORY_TARGET_TABLE_NAME,\r\nbrnzstg.HISTORY_TARGET_WRITE_MODE, \r\nbrnzstg.ISACTIVE\r\nCAST(@file_date AS DATE) AS FILE_DATE\r\nFROM control.cfg_bronze_staging brnzstg\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
+                "value": "SELECT\r\n  BRONZE_RAW_ENTITY_ID,\r\n  INTERFACE_ID,\r\n  FABRIC_PIPELINE_NAME,\r\n  SOURCE_FILE_PATH,\r\n  REPLACE(\r\n    FILE_NAME,\r\n    'YYYYMMDDHHMMSS',\r\n    FORMAT(CAST(@file_date AS DATE), 'yyyyMMdd') + '*'\r\n  ) AS FILE_NAME,\r\n  REPLACE(\r\n    TARGET_FILE_PATH,\r\n    'YYYY/MM/DD',\r\n    FORMAT(CAST(@file_date AS DATE), 'yyyy/MM/dd') + '*'\r\n  ) AS TARGET_FILE_PATH,\r\n  ISACTIVE\r\nFROM control.cfg_bronze_raw\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
                 "type": "Expression"
               },
               "type": "Query",
@@ -139,6 +103,15 @@
                   "type": "String",
                   "value": {
                     "value": "@pipeline().parameters.interface_id",
+                    "type": "Expression"
+                  },
+                  "direction": "Input"
+                },
+                {
+                  "name": "file_date",
+                  "type": "Single",
+                  "value": {
+                    "value": "@pipeline().parameters.file_date",
                     "type": "Expression"
                   },
                   "direction": "Input"
@@ -158,7 +131,7 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "script_cfg_bronze_staging_table",
+        "name": "script_cfg_bronze_raw_table",
         "dependsOn": [
           {
             "activity": "nb_gen_audit_log_insert",
@@ -173,7 +146,7 @@
         "typeProperties": {
           "isSequential": true,
           "items": {
-            "value": "@activity('script_cfg_bronze_staging_table').output.resultSets[0].rows",
+            "value": "@activity('script_cfg_bronze_raw_table').output.resultSets[0].rows",
             "type": "Expression"
           },
           "activities": [
@@ -470,10 +443,10 @@
             }
           ]
         },
-        "name": "ForEach_bronze_staging",
+        "name": "ForEach_bronze_raw_file",
         "dependsOn": [
           {
-            "activity": "script_cfg_bronze_staging_table",
+            "activity": "script_cfg_bronze_raw_table",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -509,7 +482,7 @@
         "name": "nb_gen_audit_log_update_script_fail",
         "dependsOn": [
           {
-            "activity": "script_cfg_bronze_staging_table",
+            "activity": "script_cfg_bronze_raw_table",
             "dependencyConditions": [
               "Failed"
             ]
@@ -556,28 +529,28 @@
             },
             "error_message": {
               "value": {
-                "value": "@string(activity('script_cfg_bronze_staging_table').Error.Message)",
+                "value": "@string(activity('script_cfg_bronze_raw_table').Error.Message)",
                 "type": "Expression"
               },
               "type": "string"
             },
             "activity_type": {
               "value": {
-                "value": "@activity('script_cfg_bronze_staging_table').ActivityType",
+                "value": "@activity('script_cfg_bronze_raw_table').ActivityType",
                 "type": "Expression"
               },
               "type": "string"
             },
             "activity_start_time": {
               "value": {
-                "value": "@activity('script_cfg_bronze_staging_table').ExecutionStartTime",
+                "value": "@activity('script_cfg_bronze_raw_table').ExecutionStartTime",
                 "type": "Expression"
               },
               "type": "string"
             },
             "activity_end_time": {
               "value": {
-                "value": "@activity('script_cfg_bronze_staging_table').ExecutionEndTime",
+                "value": "@activity('script_cfg_bronze_raw_table').ExecutionEndTime",
                 "type": "Expression"
               },
               "type": "string"
@@ -594,41 +567,9 @@
         "name": "nb_gen_error_log_script",
         "dependsOn": [
           {
-            "activity": "script_cfg_bronze_staging_table",
+            "activity": "script_cfg_bronze_raw_table",
             "dependencyConditions": [
               "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "d989b10f-d2f4-85cd-490b-c2666c9009ca",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "interface_id": {
-              "value": {
-                "value": "@pipeline().parameters.interface_id",
-                "type": "Expression"
-              },
-              "type": "string"
-            }
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 3,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "nb_gen_brz_layer_deletion",
-        "dependsOn": [
-          {
-            "activity": "ForEach_bronze_staging",
-            "dependencyConditions": [
-              "Succeeded"
             ]
           }
         ]
@@ -647,7 +588,7 @@
               "type": "string"
             },
             "layer": {
-              "value": "Bronze Staging",
+              "value": "Stibo Integration",
               "type": "string"
             },
             "pipeline_id": {
@@ -769,7 +710,7 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "nb_gen_brz_layer_deletion_fail",
+              "name": "nb_gen_audit_log_update_foreach_fail",
               "dependsOn": []
             },
             {
@@ -781,7 +722,7 @@
               "name": "ITERATION_FAILED",
               "dependsOn": [
                 {
-                  "activity": "nb_gen_brz_layer_deletion_fail",
+                  "activity": "nb_gen_audit_log_update_foreach_fail",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
@@ -816,15 +757,15 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "nb_gen_brz_layer_deletion_pass",
+              "name": "nb_gen_audit_log_update_foreach_pass",
               "dependsOn": []
             }
           ]
         },
-        "name": "If Condition_Job_completion_check",
+        "name": "If Condition2",
         "dependsOn": [
           {
-            "activity": "nb_gen_brz_layer_deletion",
+            "activity": "ForEach_bronze_raw_file",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -839,13 +780,13 @@
       "batch_id": {
         "type": "string"
       },
+      "parent_pipeline_run_id": {
+        "type": "string"
+      },
       "parent_pipeline_id": {
         "type": "string"
       },
       "parent_pipeline_name": {
-        "type": "string"
-      },
-      "parent_pipeline_run_id": {
         "type": "string"
       },
       "file_date": {
@@ -853,9 +794,6 @@
       }
     },
     "variables": {
-      "setvar_hasError": {
-        "type": "String"
-      },
       "hasError": {
         "type": "String"
       }
