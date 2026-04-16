@@ -184,56 +184,6 @@
               "value": "@pipeline().RunId",
               "type": "Expression"
             },
-            "parent_pipeline_run_id": {
-              "value": "@pipeline().RunId",
-              "type": "Expression"
-            },
-            "parent_pipeline_id": {
-              "value": "@pipeline().Pipeline",
-              "type": "Expression"
-            },
-            "parent_pipeline_name": {
-              "value": "@pipeline().PipelineName",
-              "type": "Expression"
-            }
-          },
-          "waitOnCompletion": true,
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "pipelineId": "f4ded5b2-9658-a5a2-46f6-1ac969d5e80b",
-          "operationType": "InvokeFabricPipeline"
-        },
-        "externalReferences": {
-          "connection": "18333ab5-fa79-4812-bb43-5cb33958e5d1"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "invk_pl_gen_brz_ingest",
-        "dependsOn": [
-          {
-            "activity": "setvar_interface_id",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "InvokePipeline",
-        "typeProperties": {
-          "parameters": {
-            "interface_id": {
-              "value": "@variables('interface_id')",
-              "type": "Expression"
-            },
-            "batch_id": {
-              "value": "@pipeline().RunId",
-              "type": "Expression"
-            },
             "parent_pipeline_id": {
               "value": "@pipeline().RunId",
               "type": "Expression"
@@ -266,45 +216,9 @@
         "name": "invk_pl_gen_brz_load",
         "dependsOn": [
           {
-            "activity": "invk_pl_gen_brz_ingest",
+            "activity": "setvar_interface_id",
             "dependencyConditions": [
               "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "e6d3307a-1320-9e20-4faf-d47be7310f37",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "pipeline_run_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "pipeline_status": {
-              "value": "FAIL",
-              "type": "string"
-            }
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 3,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "nb_gen_audit_log_update_brz_ingest_fail",
-        "dependsOn": [
-          {
-            "activity": "invk_pl_gen_brz_ingest",
-            "dependencyConditions": [
-              "Failed"
             ]
           }
         ]
