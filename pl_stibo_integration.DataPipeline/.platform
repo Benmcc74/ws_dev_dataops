@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_stibo_integration"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "fae3ffc2-1786-8c59-40a6-5e48506c47fe"
+  }
+}
