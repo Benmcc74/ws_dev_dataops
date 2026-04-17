@@ -129,7 +129,7 @@
           "scripts": [
             {
               "text": {
-                "value": "SELECT\r\nbrnzstg.BRONZE_STAGING_ENTITY_ID,\r\nbrnzstg.INTERFACE_ID,\r\nbrnzstg.SOURCE_SYSTEM,\r\nbrnzstg.SOURCE_TYPE,\r\nbrnzstg.SOURCE_PATH,\r\nbrnzstg.PROCESSED_PATH,\r\nbrnzstg.QUARANTINE_PATH,\r\nbrnzstg.SOURCE_OBJECT_NAME,\r\nbrnzstg.SOURCE_FILE_PATTERN,\r\nbrnzstg.SOURCE_FORMAT,\r\nbrnzstg.SOURCE_FILE_DELIMITER,\r\nbrnzstg.SOURCE_FILE_HEADER,\r\nbrnzstg.SOURCE_FILE_COMPRESSION,\r\nbrnzstg.FILE_SIZE_MIN_BYTES,\r\nbrnzstg.TARGET_FORMAT,\r\nbrnzstg.TARGET_SCHEMA,\r\nbrnzstg.TARGET_TABLE_NAME,\r\nbrnzstg.TARGET_WRITE_MODE,\r\nbrnzstg.HISTORY_LOAD_INDICATOR,    \r\nbrnzstg.HISTORY_TARGET_FORMAT,     \r\nbrnzstg.HISTORY_TARGET_SCHEMA,       \r\nbrnzstg.HISTORY_TARGET_TABLE_NAME,\r\nbrnzstg.HISTORY_TARGET_WRITE_MODE, \r\nbrnzstg.ISACTIVE\r\nCAST(@file_date AS DATE) AS FILE_DATE\r\nFROM control.cfg_bronze_staging brnzstg\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
+                "value": "SELECT\r\nbrnzstg.BRONZE_STAGING_ENTITY_ID,\r\nbrnzstg.INTERFACE_ID,\r\nbrnzstg.SOURCE_SYSTEM,\r\nbrnzstg.SOURCE_TYPE,\r\nbrnzstg.SOURCE_PATH,\r\nbrnzstg.PROCESSED_PATH,\r\nbrnzstg.QUARANTINE_PATH,\r\nbrnzstg.SOURCE_OBJECT_NAME,\r\nbrnzstg.SOURCE_FILE_PATTERN,\r\nbrnzstg.SOURCE_FORMAT,\r\nbrnzstg.SOURCE_FILE_DELIMITER,\r\nbrnzstg.SOURCE_FILE_HEADER,\r\nbrnzstg.SOURCE_FILE_COMPRESSION,\r\nbrnzstg.FILE_SIZE_MIN_BYTES,\r\nbrnzstg.TARGET_FORMAT,\r\nbrnzstg.TARGET_SCHEMA,\r\nbrnzstg.TARGET_TABLE_NAME,\r\nbrnzstg.TARGET_WRITE_MODE,\r\nbrnzstg.HISTORY_LOAD_INDICATOR,    \r\nbrnzstg.HISTORY_TARGET_FORMAT,     \r\nbrnzstg.HISTORY_TARGET_SCHEMA,       \r\nbrnzstg.HISTORY_TARGET_TABLE_NAME,\r\nbrnzstg.HISTORY_TARGET_WRITE_MODE, \r\nbrnzstg.ISACTIVE\r\nFROM control.cfg_bronze_staging brnzstg\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
                 "type": "Expression"
               },
               "type": "Query",
@@ -200,56 +200,56 @@
                         },
                         "source_path": {
                           "value": {
-                            "value": "@item.SOURCE_PATH",
+                            "value": "@item().SOURCE_PATH",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "source_file_header": {
                           "value": {
-                            "value": "@item.SOURCE_FILE_HEADER",
+                            "value": "@item().SOURCE_FILE_HEADER",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "source_object_name": {
                           "value": {
-                            "value": "@item.SOURCE_OBJECT_NAME",
+                            "value": "@item().SOURCE_OBJECT_NAME",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "target_format": {
                           "value": {
-                            "value": "@item.TARGET_FORMAT",
+                            "value": "@item().TARGET_FORMAT",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "target_write_mode": {
                           "value": {
-                            "value": "@item.TARGET_WRITE_MODE",
+                            "value": "@item().TARGET_WRITE_MODE",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "target_schema": {
                           "value": {
-                            "value": "@item.TARGET_SCHEMA",
+                            "value": "@item().TARGET_SCHEMA",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "target_table_name": {
                           "value": {
-                            "value": "@item.TARGET_TABLE_NAME",
+                            "value": "@item().TARGET_TABLE_NAME",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "delimiter": {
                           "value": {
-                            "value": "@item.SOURCE_FILE_DELIMITER",
+                            "value": "@item().SOURCE_FILE_DELIMITER",
                             "type": "Expression"
                           },
                           "type": "string"
@@ -331,13 +331,6 @@
                           },
                           "type": "string"
                         },
-                        "file_date": {
-                          "value": {
-                            "value": "@item().FILE_DATE",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
                         "interface_id": {
                           "value": {
                             "value": "@pipeline().parameters.interface_id",
@@ -349,7 +342,7 @@
                     },
                     "policy": {
                       "timeout": "0.12:00:00",
-                      "retry": 3,
+                      "retry": 0,
                       "retryIntervalInSeconds": 30,
                       "secureInput": false,
                       "secureOutput": false
@@ -446,7 +439,7 @@
                     "type": "SetVariable",
                     "typeProperties": {
                       "variableName": "hasError",
-                      "value": "true"
+                      "value": true
                     },
                     "policy": {
                       "secureInput": false,
@@ -726,7 +719,7 @@
         "type": "SetVariable",
         "typeProperties": {
           "variableName": "hasError",
-          "value": "false"
+          "value": false
         },
         "policy": {
           "secureInput": false,
@@ -834,30 +827,30 @@
     ],
     "parameters": {
       "interface_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "INTERFACE_01"
       },
       "batch_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "7"
       },
       "parent_pipeline_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "7"
       },
       "parent_pipeline_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "master"
       },
       "parent_pipeline_run_id": {
-        "type": "string"
-      },
-      "file_date": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "7"
       }
     },
     "variables": {
-      "setvar_hasError": {
-        "type": "String"
-      },
       "hasError": {
-        "type": "String"
+        "type": "Boolean",
+        "defaultValue": false
       }
     }
   }
