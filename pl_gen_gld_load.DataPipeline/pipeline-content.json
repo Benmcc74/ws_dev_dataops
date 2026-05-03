@@ -5,7 +5,7 @@
         "type": "SetVariable",
         "typeProperties": {
           "variableName": "hasError",
-          "value": "false"
+          "value": false
         },
         "policy": {
           "secureInput": false,
@@ -247,7 +247,7 @@
               "type": "IfCondition",
               "typeProperties": {
                 "expression": {
-                  "value": "@equals(variables('hasError'), true)",
+                  "value": "@equals(variables('hasError'), false)",
                   "type": "Expression"
                 },
                 "ifTrueActivities": [
@@ -263,7 +263,7 @@
                           },
                           "type": "String"
                         },
-                        "child_stored_procedure": {
+                        "child_stored_procedure_name": {
                           "value": {
                             "value": "@item().STORED_PROCEDURE_NAME",
                             "type": "Expression"
@@ -383,7 +383,7 @@
                     "type": "SetVariable",
                     "typeProperties": {
                       "variableName": "hasError",
-                      "value": "true"
+                      "value": true
                     },
                     "policy": {
                       "secureInput": false,
@@ -637,24 +637,29 @@
     ],
     "parameters": {
       "interface_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "INTERFACE_01"
       },
       "batch_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1"
       },
       "parent_pipeline_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "Master"
       },
       "parent_pipeline_run_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1pr"
       },
       "parent_pipeline_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1p"
       }
     },
     "variables": {
       "hasError": {
-        "type": "String"
+        "type": "Boolean"
       }
     }
   }

@@ -42,7 +42,16 @@ tables_config = result["tables_config"]
 
 if "func_code" in result:
  exec(result["func_code"])
- 
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 import logging
 from pyspark.sql.functions import (
     col, lit, sha2, concat_ws, coalesce, abs, rand, current_timestamp, expr
@@ -463,6 +472,16 @@ def run_scd(table_cfg):
         logger.error(f"SCD process failed for table {table_cfg.get('target_table', 'UNKNOWN')}: {ex}")
         raise Exception (f"SCD process failed for table {table_cfg.get('target_table', 'UNKNOWN')}: {ex}")
 
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 from delta.tables import DeltaTable
 import uuid
 from pyspark.sql.functions import current_date, lit, expr,sha2,concat_ws,col,rand,abs,when,length,trim,current_timestamp,coalesce
@@ -475,7 +494,6 @@ spark.conf.set("spark.sql.autoBroadcastJoinThreshold", 10 * 1024 * 1024)  # 10 M
 for cfg in tables_config:
     run_scd(cfg)
 mssparkutils.notebook.exit("success")
-
 
 # METADATA ********************
 

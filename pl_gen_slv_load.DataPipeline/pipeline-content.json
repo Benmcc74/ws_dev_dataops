@@ -557,6 +557,7 @@
       {
         "type": "ForEach",
         "typeProperties": {
+          "isSequential": true,
           "items": {
             "value": "@activity('script_cfg_silver_table').output.resultSets[0].rows",
             "type": "Expression"
@@ -950,11 +951,11 @@
       },
       "batch_id": {
         "type": "string",
-        "defaultValue": "10"
+        "defaultValue": "1"
       },
       "parent_pipeline_id": {
         "type": "string",
-        "defaultValue": "101"
+        "defaultValue": "1p"
       },
       "parent_pipeline_name": {
         "type": "string",
@@ -962,7 +963,7 @@
       },
       "parent_pipeline_run_id": {
         "type": "string",
-        "defaultValue": "102"
+        "defaultValue": "1pr"
       }
     },
     "variables": {
