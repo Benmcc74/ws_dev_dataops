@@ -215,7 +215,7 @@
         "type": "SetVariable",
         "typeProperties": {
           "variableName": "hasError",
-          "value": "false"
+          "value": false
         },
         "policy": {
           "secureInput": false,
@@ -594,7 +594,7 @@
                     },
                     "policy": {
                       "timeout": "0.12:00:00",
-                      "retry": 3,
+                      "retry": 0,
                       "retryIntervalInSeconds": 30,
                       "secureInput": false,
                       "secureOutput": false
@@ -672,7 +672,7 @@
                     },
                     "policy": {
                       "timeout": "0.12:00:00",
-                      "retry": 3,
+                      "retry": 0,
                       "retryIntervalInSeconds": 30,
                       "secureInput": false,
                       "secureOutput": false
@@ -682,7 +682,7 @@
                       {
                         "activity": "nb_gen_scd_merge",
                         "dependencyConditions": [
-                          "Succeeded"
+                          "Failed"
                         ]
                       }
                     ]
@@ -691,7 +691,7 @@
                     "type": "SetVariable",
                     "typeProperties": {
                       "variableName": "hasError",
-                      "value": "true"
+                      "value": true
                     },
                     "policy": {
                       "secureInput": false,
@@ -945,24 +945,29 @@
     ],
     "parameters": {
       "interface_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "INTERFACE_01"
       },
       "batch_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "10"
       },
       "parent_pipeline_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "101"
       },
       "parent_pipeline_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "master"
       },
       "parent_pipeline_run_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "102"
       }
     },
     "variables": {
       "hasError": {
-        "type": "String"
+        "type": "Boolean"
       }
     }
   }
