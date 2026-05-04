@@ -282,7 +282,7 @@ mssparkutils.fs.mkdirs("Files/Bronze/Raw/Stibo/Customer")
 # MAGIC DROP TABLE LHDEVBRONZE.audit.ops_record_count_log;
 # MAGIC DROP TABLE LHDEVBRONZE.bronze_staging.CUSTOMER_BRONZE_SNAPSHOT;
 # MAGIC DROP TABLE LHDEVBRONZE.bronze_staging.CUSTOMER_BRONZE_HISTORY;
-
+# MAGIC --comment
 
 # METADATA ********************
 
