@@ -946,24 +946,19 @@
     ],
     "parameters": {
       "interface_id": {
-        "type": "string",
-        "defaultValue": "INTERFACE_01"
+        "type": "string"
       },
       "batch_id": {
-        "type": "string",
-        "defaultValue": "1"
+        "type": "string"
       },
       "parent_pipeline_id": {
-        "type": "string",
-        "defaultValue": "1p"
+        "type": "string"
       },
       "parent_pipeline_name": {
-        "type": "string",
-        "defaultValue": "master"
+        "type": "string"
       },
       "parent_pipeline_run_id": {
-        "type": "string",
-        "defaultValue": "1pr"
+        "type": "string"
       }
     },
     "variables": {

@@ -54,6 +54,13 @@
             "pipeline_status": {
               "value": "STARTED",
               "type": "string"
+            },
+            "workspace_id": {
+              "value": {
+                "value": "@pipeline().DataFactory",
+                "type": "Expression"
+              },
+              "type": "string"
             }
           }
         },
@@ -195,8 +202,7 @@
             "parent_pipeline_run_id": {
               "value": "@pipeline().PipelineName",
               "type": "Expression"
-            },
-            "file_date": "2026-04-13"
+            }
           },
           "waitOnCompletion": true,
           "workspaceId": "00000000-0000-0000-0000-000000000000",
@@ -556,10 +562,12 @@
     ],
     "variables": {
       "interface_id": {
-        "type": "String"
+        "type": "String",
+        "defaultValue": "INTERFACE_01"
       },
       "batch_id": {
-        "type": "String"
+        "type": "String",
+        "defaultValue": "1111"
       }
     }
   }
