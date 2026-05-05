@@ -637,19 +637,24 @@
     ],
     "parameters": {
       "interface_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "INTERFACE_01"
       },
       "batch_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1111"
       },
       "parent_pipeline_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "Master"
       },
       "parent_pipeline_run_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1111RD"
       },
       "parent_pipeline_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "1111PID"
       }
     },
     "variables": {
