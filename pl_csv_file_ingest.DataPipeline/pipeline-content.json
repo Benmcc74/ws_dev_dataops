@@ -1,0 +1,94 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "BinarySource",
+            "formatSettings": {
+              "type": "BinaryReadSettings"
+            },
+            "storeSettings": {
+              "type": "FileServerReadSettings",
+              "recursive": true,
+              "wildcardFolderPath": {
+                "value": "@string(pipeline().parameters.src_file_path)",
+                "type": "Expression"
+              },
+              "wildcardFileName": {
+                "value": "@string(pipeline().parameters.file_name)",
+                "type": "Expression"
+              },
+              "deleteFilesAfterCompletion": false
+            },
+            "datasetSettings": {
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "FileServerLocation"
+                }
+              },
+              "externalReferences": {
+                "connection": "2e0473c2-5483-4a1f-9f6a-37490e1264e1"
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "BinarySink",
+            "storeSettings": {
+              "type": "AzureBlobStorageWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": {
+                    "value": "@string(pipeline().parameters.target_file_path)",
+                    "type": "Expression"
+                  }
+                }
+              },
+              "linkedService": {
+                "name": "LHDEVBRONZE",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "7766c429-b022-9db0-4a4a-2d9e14c8601e",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000",
+                    "rootFolder": "Files"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Ingest CSV File",
+        "dependsOn": []
+      }
+    ],
+    "parameters": {
+      "src_file_path": {
+        "type": "object"
+      },
+      "file_name": {
+        "type": "object"
+      },
+      "target_file_path": {
+        "type": "object"
+      }
+    }
+  }
+}

@@ -23,8 +23,8 @@
 # CELL ********************
 
 # MAGIC %%sql
-# MAGIC SELECT * FROM LHDEVBRONZE.control.cfg_bronze_staging
-# MAGIC ;
+# MAGIC SELECT * FROM LHDEVBRONZE.control.cfg_bronze_staging;
+# MAGIC SELECT * FROM LHDEVBRONZE.control.cfg_bronze_raw;
 
 # METADATA ********************
 
@@ -41,6 +41,19 @@
 # MAGIC set ISACTIVE = 'Y'
 # MAGIC where BRONZE_STAGING_ENTITY_ID = 1
 # MAGIC ;
+# MAGIC update LHDEVBRONZE.control.cfg_bronze_staging
+# MAGIC set ISACTIVE = 'N'
+# MAGIC where BRONZE_STAGING_ENTITY_ID = 2
+# MAGIC ;
+# MAGIC update LHDEVBRONZE.control.cfg_bronze_raw
+# MAGIC set ISACTIVE = 'Y'
+# MAGIC where BRONZE_RAW_ENTITY_ID = 1
+# MAGIC ;
+# MAGIC update LHDEVBRONZE.control.cfg_bronze_raw
+# MAGIC set ISACTIVE = 'N'
+# MAGIC where BRONZE_RAW_ENTITY_ID = 2
+# MAGIC ;
+
 
 # METADATA ********************
 

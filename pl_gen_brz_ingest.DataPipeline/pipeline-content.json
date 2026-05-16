@@ -93,7 +93,7 @@
           "scripts": [
             {
               "text": {
-                "value": "SELECT\r\n  BRONZE_RAW_ENTITY_ID,\r\n  INTERFACE_ID,\r\n  FABRIC_PIPELINE_NAME,\r\n  SOURCE_FILE_PATH,\r\n  REPLACE(\r\n    FILE_NAME,\r\n    'YYYYMMDDHHMMSS',\r\n    FORMAT(CAST(@file_date AS DATE), 'yyyyMMdd') + '*'\r\n  ) AS FILE_NAME,\r\n  REPLACE(\r\n    TARGET_FILE_PATH,\r\n    'YYYY/MM/DD',\r\n    FORMAT(CAST(@file_date AS DATE), 'yyyy/MM/dd') + '*'\r\n  ) AS TARGET_FILE_PATH,\r\n  ISACTIVE\r\nFROM control.cfg_bronze_raw\r\nWHERE\r\n  brnzstg.ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
+                "value": "SELECT\r\n  BRONZE_RAW_ENTITY_ID,\r\n  INTERFACE_ID,\r\n  FABRIC_PIPELINE_NAME,\r\n--  SOURCE_FILE_PATH,\r\n  'C:\\devt\\input' as SOURCE_FILE_PATH,\r\n  REPLACE(\r\n    FILE_NAME,\r\n    'YYYYMMDDHHMMSS',\r\n    FORMAT(CAST(GETDATE() AS DATE), 'yyyyMMdd') + '*'\r\n  ) AS FILE_NAME,\r\n  REPLACE(\r\n    TARGET_FILE_PATH,\r\n    'YYYY/MM/DD',\r\n    FORMAT(CAST(GETDATE() AS DATE), 'yyyy/MM/dd')\r\n  ) AS TARGET_FILE_PATH,\r\n  ISACTIVE\r\nFROM control.cfg_bronze_raw\r\nWHERE\r\n  ISACTIVE = 'Y'\r\nAND INTERFACE_ID = @interface_id;",
                 "type": "Expression"
               },
               "type": "Query",
@@ -103,15 +103,6 @@
                   "type": "String",
                   "value": {
                     "value": "@pipeline().parameters.interface_id",
-                    "type": "Expression"
-                  },
-                  "direction": "Input"
-                },
-                {
-                  "name": "file_date",
-                  "type": "Single",
-                  "value": {
-                    "value": "@pipeline().parameters.file_date",
                     "type": "Expression"
                   },
                   "direction": "Input"
@@ -161,178 +152,6 @@
                   {
                     "type": "TridentNotebook",
                     "typeProperties": {
-                      "notebookId": "3cdf08c3-a68d-a1aa-47e3-465b4b5d2453",
-                      "workspaceId": "00000000-0000-0000-0000-000000000000",
-                      "parameters": {
-                        "source_format": {
-                          "value": {
-                            "value": "@item().SOURCE_FORMAT",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "source_path": {
-                          "value": {
-                            "value": "@item.SOURCE_PATH",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "source_file_header": {
-                          "value": {
-                            "value": "@item.SOURCE_FILE_HEADER",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "source_object_name": {
-                          "value": {
-                            "value": "@item.SOURCE_OBJECT_NAME",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "target_format": {
-                          "value": {
-                            "value": "@item.TARGET_FORMAT",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "target_write_mode": {
-                          "value": {
-                            "value": "@item.TARGET_WRITE_MODE",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "target_schema": {
-                          "value": {
-                            "value": "@item.TARGET_SCHEMA",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "target_table_name": {
-                          "value": {
-                            "value": "@item.TARGET_TABLE_NAME",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "delimiter": {
-                          "value": {
-                            "value": "@item.SOURCE_FILE_DELIMITER",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "batch_id": {
-                          "value": {
-                            "value": "@pipeline().parameters.batch_id",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "processed_path": {
-                          "value": {
-                            "value": "@item().PROCESSED_PATH",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "quarantine_path": {
-                          "value": {
-                            "value": "@item().QUARANTINE_PATH",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "history_load_indicator": {
-                          "value": {
-                            "value": "@item().HISTORY_LOAD_INDICATOR",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "history_target_format": {
-                          "value": {
-                            "value": "@item().HISTORY_TARGET_FORMAT",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "history_target_schema": {
-                          "value": {
-                            "value": "@item().HISTORY_TARGET_SCHEMA",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "history_target_table_name": {
-                          "value": {
-                            "value": "@item().HISTORY_TARGET_TABLE_NAME",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "history_target_write_mode": {
-                          "value": {
-                            "value": "@item().HISTORY_TARGET_WRITE_MODE",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "source_system": {
-                          "value": {
-                            "value": "@item().SOURCE_SYSTEM",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "file_size_min_threshold": {
-                          "value": {
-                            "value": "@item().FILE_SIZE_MIN_BYTES",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "pipeline_run_id": {
-                          "value": {
-                            "value": "@pipeline().RunId",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "file_date": {
-                          "value": {
-                            "value": "@item().FILE_DATE",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        },
-                        "interface_id": {
-                          "value": {
-                            "value": "@pipeline().parameters.interface_id",
-                            "type": "Expression"
-                          },
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "policy": {
-                      "timeout": "0.12:00:00",
-                      "retry": 3,
-                      "retryIntervalInSeconds": 30,
-                      "secureInput": false,
-                      "secureOutput": false
-                    },
-                    "name": "nb_run_brz_load_entity",
-                    "dependsOn": []
-                  },
-                  {
-                    "type": "TridentNotebook",
-                    "typeProperties": {
                       "notebookId": "450d6fed-5c44-8294-4f5b-03db83e28560",
                       "workspaceId": "00000000-0000-0000-0000-000000000000",
                       "parameters": {
@@ -358,7 +177,7 @@
                           "type": "string"
                         },
                         "activity_name": {
-                          "value": "nb_run_brz_load_entity",
+                          "value": "invk_pl_csv_file_ingest",
                           "type": "string"
                         },
                         "pipeline_run_id": {
@@ -370,28 +189,28 @@
                         },
                         "error_message": {
                           "value": {
-                            "value": "@string(activity('nb_run_brz_load_entity').Error.Message)",
+                            "value": "@string(activity('invk_pl_csv_file_ingest').Error.Message)",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "activity_type": {
                           "value": {
-                            "value": "notebook_bronze_load",
+                            "value": "@activity('invk_pl_csv_file_ingest').Activity_Type",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "activity_start_time": {
                           "value": {
-                            "value": "@activity('nb_run_brz_load_entity').ExecutionStartTime",
+                            "value": "@activity('invk_pl_csv_file_ingest').ExecutionStartTime",
                             "type": "Expression"
                           },
                           "type": "string"
                         },
                         "activity_end_time": {
                           "value": {
-                            "value": "@activity('nb_run_brz_load_entity').ExecutionEndTime",
+                            "value": "@activity('invk_pl_csv_file_ingest').ExecutionEndTime",
                             "type": "Expression"
                           },
                           "type": "string"
@@ -408,7 +227,7 @@
                     "name": "nb_gen_error_log_brz_load_entity",
                     "dependsOn": [
                       {
-                        "activity": "nb_run_brz_load_entity",
+                        "activity": "invk_pl_csv_file_ingest",
                         "dependencyConditions": [
                           "Failed"
                         ]
@@ -419,7 +238,7 @@
                     "type": "SetVariable",
                     "typeProperties": {
                       "variableName": "hasError",
-                      "value": "true"
+                      "value": true
                     },
                     "policy": {
                       "secureInput": false,
@@ -434,6 +253,41 @@
                         ]
                       }
                     ]
+                  },
+                  {
+                    "type": "InvokePipeline",
+                    "typeProperties": {
+                      "parameters": {
+                        "src_file_path": {
+                          "value": "@item().SOURCE_FILE_PATH",
+                          "type": "Expression"
+                        },
+                        "file_name": {
+                          "value": "@item().FILE_NAME",
+                          "type": "Expression"
+                        },
+                        "target_file_path": {
+                          "value": "@item().TARGET_FILE_PATH",
+                          "type": "Expression"
+                        }
+                      },
+                      "waitOnCompletion": true,
+                      "workspaceId": "00000000-0000-0000-0000-000000000000",
+                      "pipelineId": "0fecb3ce-0794-a555-4c15-01d64d63df5a",
+                      "operationType": "InvokeFabricPipeline"
+                    },
+                    "externalReferences": {
+                      "connection": "18333ab5-fa79-4812-bb43-5cb33958e5d1"
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 0,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "invk_pl_csv_file_ingest",
+                    "dependsOn": []
                   }
                 ],
                 "ifFalseActivities": []
@@ -667,7 +521,7 @@
         "type": "SetVariable",
         "typeProperties": {
           "variableName": "hasError",
-          "value": "false"
+          "value": false
         },
         "policy": {
           "secureInput": false,
@@ -788,14 +642,11 @@
       },
       "parent_pipeline_name": {
         "type": "string"
-      },
-      "file_date": {
-        "type": "string"
       }
     },
     "variables": {
       "hasError": {
-        "type": "String"
+        "type": "Boolean"
       }
     }
   }
